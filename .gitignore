@@ -35,4 +35,5 @@ ehthumbs.db
 Desktop.ini
 
 .vite
-notes_md
+notes.md
+*.md

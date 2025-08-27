@@ -15,7 +15,7 @@ function initSocketServer(httpServer) {
     if (!cookies.token) {
       next(new Error("Authentication Error: No Token Provided"));
     }
-  
+
     try {
       const decoded = jwt.verify(cookies.token, process.env.JWT_SECRET_KEY);
       const user = await userModel.findOne({ _id: decoded.id });
@@ -39,11 +39,9 @@ function initSocketServer(httpServer) {
 
       const memory = await queryMemory({
         queryVector: userVectors,
-        limit: 3,
+        limit: 5,
         metadata: {},
       });
-
-      console.log(memory);
 
       await createMemory({
         vectors: userVectors,
@@ -65,14 +63,34 @@ function initSocketServer(httpServer) {
           .lean()
       ).reverse();
 
-      const aiResponse = await generateResponse(
-        chatHistory.map((item) => {
-          return {
-            role: item.role,
-            parts: [{ text: item.content }],
-          };
-        })
-      );
+      const shortTermMemory = chatHistory.map((item) => {
+        return {
+          role: item.role,
+          parts: [{ text: item.content }],
+        };
+      });
+
+      const longTermMemory = [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `
+          These are some previous messages from the chat, use them to generate a response: 
+
+          ${memory.map((item) => item.metadata.text).join("\n")}
+          
+          `,
+            },
+          ],
+        },
+      ];
+
+
+      const aiResponse = await generateResponse([
+        ...longTermMemory,
+        ...shortTermMemory,
+      ]);
 
       const responseToUser = await messageModel.create({
         userID: socket.user._id,
