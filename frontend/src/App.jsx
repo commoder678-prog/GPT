@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import MainRoutes from "./routes/MainRoutes";
 
 const App = () => {
   return (
     <>
-      <div className="bg-red-200">
+      <div className="">
         <MainRoutes />
       </div>
     </>
