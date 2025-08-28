@@ -122,9 +122,7 @@ function initSocketServer(httpServer) {
             {
               text: `
           These are some previous messages from the chat, use them to generate a response: 
-
           ${memory.map((item) => item.metadata.text).join("\n")}
-          
           `,
             },
           ],

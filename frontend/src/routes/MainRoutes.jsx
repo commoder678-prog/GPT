@@ -3,13 +3,14 @@ import { Route, Routes } from "react-router-dom";
 
 const Login = lazy(() => import("../pages/Login"));
 const Register = lazy(() => import("../pages/Register"));
+const Home = lazy(() => import("../pages/Home"));
 
 const MainRoutes = () => {
   return (
     <>
       <Suspense fallback={<h1>Loading...</h1>}>
         <Routes>
-          <Route path="/" element={<h1>Home</h1>} />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>

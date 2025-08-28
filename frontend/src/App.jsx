@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import MainRoutes from "./routes/MainRoutes";
 
 const App = () => {
