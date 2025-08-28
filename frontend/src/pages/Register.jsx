@@ -6,30 +6,21 @@ import { Label } from "@/components/ui/label";
 import { Zap, Chrome } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "../api/api";
+import { registerUser } from "../store/actions/userAction";
+import { useDispatch } from "react-redux";
 
 const Register = () => {
   const { register, handleSubmit, reset } = useForm();
   const navigateTo = useNavigate();
+  const dispatch = useDispatch();
 
   const registerHandler = async (userDetails) => {
-    const email = userDetails.email.trim();
-    const password = userDetails.password.trim();
-    const firstName = userDetails.firstName.trim();
-    const lastName = userDetails.lastName.trim();
-    if (email === "" || password === "" || firstName === "" || lastName === "")
-      return;
+    const result = await dispatch(registerUser(userDetails));
 
-    try {
-      await registerUser({
-        fullName: { firstName, lastName },
-        email,
-        password,
-      });
-
+    if (result?.success) {
       navigateTo("/");
-    } catch (error) {
-      console.log(error);
+    } else {
+      alert("An error occured");
     }
   };
 
@@ -177,7 +168,10 @@ const Register = () => {
           <motion.div variants={itemVariants} className="text-center pt-4">
             <p className="text-sm text-gray-600">
               Already have an account?{" "}
-              <button onClick={()=>navigateTo("/login")} className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer">
+              <button
+                onClick={() => navigateTo("/login")}
+                className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
+              >
                 Log In
               </button>
             </p>

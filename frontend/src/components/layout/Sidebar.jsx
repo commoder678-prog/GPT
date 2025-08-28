@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useSelector } from "react-redux";
 
 const Sidebar = ({
   isOpen,
@@ -15,6 +16,8 @@ const Sidebar = ({
   onNewChat,
   className,
 }) => {
+  const user = useSelector((state) => state.user.user);
+  // console.log(user);
   return (
     <>
       <AnimatePresence>
@@ -148,7 +151,9 @@ const Sidebar = ({
                 <User size={14} />
               </AvatarFallback>
             </Avatar>
-            <span className="text-sm font-medium">Andrew Neilson</span>
+            <span className="text-sm font-medium">
+              {user?.fullName?.firstName + " " + user?.fullName?.lastName}
+            </span>
           </Button>
         </div>
       </motion.div>

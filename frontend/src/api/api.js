@@ -10,3 +10,5 @@ export const loginUser = (userDetails) =>
 
 export const registerUser = (userDetails) =>
   api.post("/api/auth/register", userDetails);
+
+export default api

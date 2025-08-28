@@ -6,26 +6,21 @@ import { Label } from "@/components/ui/label";
 import { Zap, Chrome } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/api";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../store/actions/userAction";
 
 const Login = () => {
   const { register, handleSubmit, reset } = useForm();
   const navigateTo = useNavigate();
+  const dispatch = useDispatch();
 
   const loginHandler = async (userDetails) => {
-    const email = userDetails.email.trim();
-    const password = userDetails.password.trim();
-    if (email === "" || password === "") return;
+    const result = await dispatch(loginUser(userDetails));
 
-    try {
-      await loginUser({
-        email,
-        password,
-      });
-
+    if (result?.success) {
       navigateTo("/");
-    } catch (error) {
-      console.log(error);
+    } else {
+      alert("An error occured");
     }
   };
 

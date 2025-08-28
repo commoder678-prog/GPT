@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-
+import { io } from "socket.io-client";
 import Sidebar from "../components/layout/Sidebar";
 import ChatArea from "../components/layout/ChatArea";
+import { getUser } from "../store/actions/userAction";
+import { useDispatch } from "react-redux";
 
 const dummyAIResponses = [
   "Hello! How can I assist you today?",
@@ -13,11 +15,13 @@ const dummyAIResponses = [
   "I'm not sure about that, but I'll find out.",
   "Can you clarify your last message?",
   "Here's what I found on that topic.",
-  "Is there anything else you'd like to know?"
+  "Is there anything else you'd like to know?",
 ];
 
 const Home = () => {
   const [conversations, setConversations] = useState([]);
+  const [socket, setSocket] = useState(null);
+  const dispatch = useDispatch();
 
   const [activeConversationId, setActiveConversationId] = useState("1");
   const [isTyping, setIsTyping] = useState(false);
@@ -39,10 +43,26 @@ const Home = () => {
     setActiveConversationId(newConversation.id);
   };
 
+  async function getUserDetails(params) {
+    await dispatch(getUser());
+  }
+
   useEffect(() => {
     if (conversations.length === 0) {
       handleNewChat();
     }
+
+    // const tempSocket = io("http://localhost:3000", {
+    //   withCredentials: true,
+    // });
+
+    // tempSocket.on("ai-response", (message) => {
+    //   console.log(message);
+    // });
+
+    // setSocket(tempSocket);
+
+    getUserDetails()
   }, []);
 
   const handleSendMessage = async (content) => {
