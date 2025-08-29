@@ -10,14 +10,15 @@ import { useSelector } from "react-redux";
 const Sidebar = ({
   isOpen,
   onToggle,
-  conversations,
-  activeConversationId,
-  onConversationSelect,
+  // chats,
+  chatID,
+  onchatselect,
   onNewChat,
   className,
 }) => {
   const user = useSelector((state) => state.user.user);
-  // console.log(user);
+  const chats = useSelector((state) => state.chat.chats);
+
   return (
     <>
       <AnimatePresence>
@@ -32,7 +33,6 @@ const Sidebar = ({
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
       <motion.div
         initial={false}
         animate={{
@@ -44,7 +44,6 @@ const Sidebar = ({
           className
         )}
       >
-        {/* Header */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold text-gray-900">CHAT A.I+</h1>
@@ -75,9 +74,7 @@ const Sidebar = ({
         <div className="flex-1 overflow-hidden">
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm text-gray-500 font-medium">
-                Your conversations
-              </h3>
+              <h3 className="text-sm text-gray-500 font-medium">Your chats</h3>
               <Button
                 variant="ghost"
                 size="sm"
@@ -89,18 +86,18 @@ const Sidebar = ({
 
             <ScrollArea className="h-[calc(100vh-300px)]">
               <div className="space-y-1">
-                {conversations?.map((conversation) => (
+                {chats?.map((chat) => (
                   <motion.div
-                    key={conversation.id}
+                    key={chat._id}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
                   >
                     <Button
                       variant="ghost"
-                      onClick={() => onConversationSelect(conversation.id)}
+                      onClick={() => onchatselect(chat._id)}
                       className={cn(
                         "w-full justify-start p-3 h-auto text-left",
-                        conversation.id === activeConversationId
+                        chat._id === chatID
                           ? "bg-gray-100 text-gray-900"
                           : "text-gray-600 hover:bg-gray-50"
                       )}
@@ -111,11 +108,11 @@ const Sidebar = ({
                       />
                       <div className="flex-1 min-w-0">
                         <div className="truncate text-sm font-medium">
-                          {conversation.title}
+                          {chat.title}
                         </div>
-                        {conversation.lastMessage && (
+                        {chat.lastMessage && (
                           <div className="truncate text-xs text-gray-400 mt-1">
-                            {conversation.lastMessage}
+                            {chat.lastMessage || undefined}
                           </div>
                         )}
                       </div>

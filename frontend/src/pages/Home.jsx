@@ -4,6 +4,7 @@ import Sidebar from "../components/layout/Sidebar";
 import ChatArea from "../components/layout/ChatArea";
 import { getUser } from "../store/actions/userAction";
 import { useDispatch } from "react-redux";
+import { createChat, getChats } from "../store/actions/chatActions";
 
 const dummyAIResponses = [
   "Hello! How can I assist you today?",
@@ -19,39 +20,32 @@ const dummyAIResponses = [
 ];
 
 const Home = () => {
-  const [conversations, setConversations] = useState([]);
+  const [chats, setChats] = useState([]);
   const [socket, setSocket] = useState(null);
   const dispatch = useDispatch();
 
-  const [activeConversationId, setActiveConversationId] = useState("1");
+  const [chatID, setChatID] = useState("1");
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const activeConversation = conversations.find(
-    (c) => c.id === activeConversationId
-  );
+  const activeConversation = chats.find((c) => c.id === chatID);
 
-  const handleNewChat = () => {
-    const newConversation = {
-      id: Date.now().toString(),
-      title: "New Conversation",
-      messages: [],
-      lastMessage: undefined,
-    };
+  const handleNewChat = async () => {
+    const title = prompt("Enter the title of your chat");
 
-    setConversations((prev) => [newConversation, ...prev]);
-    setActiveConversationId(newConversation.id);
+    const response = await dispatch(createChat({ title }));
+
+    setChats((prev) => [response, ...prev]);
+    setChatID(response.chatID);
   };
 
-  async function getUserDetails(params) {
+  async function getUserDetails() {
     await dispatch(getUser());
+    await dispatch(getChats());
+
   }
 
   useEffect(() => {
-    if (conversations.length === 0) {
-      handleNewChat();
-    }
-
     // const tempSocket = io("http://localhost:3000", {
     //   withCredentials: true,
     // });
@@ -62,18 +56,12 @@ const Home = () => {
 
     // setSocket(tempSocket);
 
-    getUserDetails()
+    getUserDetails();
   }, []);
 
   const handleSendMessage = async (content) => {
-    if (!activeConversationId) {
-      handleNewChat();
-    }
-
-    // Use the latest activeConversationId after potential new chat creation
-    const currentConversation = conversations.find(
-      (c) => c.id === activeConversationId
-    );
+    // Use the latest chatID after potential new chat creation
+    const currentConversation = chats.find((c) => c.id === chatID);
 
     if (!currentConversation) {
       return;
@@ -86,9 +74,9 @@ const Home = () => {
       timestamp: new Date(),
     };
 
-    setConversations((prev) =>
+    setChats((prev) =>
       prev.map((conv) =>
-        conv.id === activeConversationId
+        conv.id === chatID
           ? {
               ...conv,
               messages: [...conv.messages, newMessage],
@@ -109,9 +97,9 @@ const Home = () => {
         timestamp: new Date(),
       };
 
-      setConversations((prev) =>
+      setChats((prev) =>
         prev.map((conv) =>
-          conv.id === activeConversationId
+          conv.id === chatID
             ? {
                 ...conv,
                 messages: [...conv.messages, aiResponse],
@@ -127,9 +115,8 @@ const Home = () => {
     }, 1500);
   };
 
-  const handleConversationSelect = (id) => {
-    setActiveConversationId(id);
-    // Auto-close sidebar on mobile after selection
+  const handlechatselect = (id) => {
+    setChatID(id);
     if (window.innerWidth < 1024) {
       setSidebarOpen(false);
     }
@@ -139,7 +126,6 @@ const Home = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Auto-close sidebar on mobile
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
@@ -159,9 +145,9 @@ const Home = () => {
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={toggleSidebar}
-        conversations={conversations}
-        activeConversationId={activeConversationId}
-        onConversationSelect={handleConversationSelect}
+        chats={chats}
+        chatID={chatID}
+        onchatselect={handlechatselect}
         onNewChat={handleNewChat}
       />
 
@@ -173,10 +159,10 @@ const Home = () => {
         className={`transition-all duration-300 ${
           sidebarOpen ? "lg:ml-0" : "lg:ml-0"
         }`}
-        activeConversationId={activeConversationId}
-        conversations={conversations}
+        chatID={chatID}
+        chats={chats}
         handleNewChat={handleNewChat}
-        setConversations={setConversations}
+        setChats={setChats}
       />
     </div>
   );

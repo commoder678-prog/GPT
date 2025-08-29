@@ -19,4 +19,27 @@ const createChat = async (req, res) => {
   });
 };
 
-module.exports = { createChat };
+const getChats = async (req, res) => {
+  const user = req.user;
+
+  try {
+    const chats = await chatModel.find({ userID: user._id });
+
+    if (!chats)
+      return res.status(404).json({
+        message: "No Chats Found",
+      });
+
+    return res.status(200).json({
+      message: "Chats Fetched Successfully",
+      chats,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "An Error Has Occured",
+      error,
+    });
+  }
+};
+
+module.exports = { createChat, getChats };
