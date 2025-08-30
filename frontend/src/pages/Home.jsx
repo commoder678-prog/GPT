@@ -3,32 +3,21 @@ import { io } from "socket.io-client";
 import Sidebar from "../components/layout/Sidebar";
 import ChatArea from "../components/layout/ChatArea";
 import { getUser } from "../store/actions/userAction";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createChat, getChats } from "../store/actions/chatActions";
-
-const dummyAIResponses = [
-  "Hello! How can I assist you today?",
-  "I'm here to help! What do you need?",
-  "Could you please provide more details?",
-  "Thank you for reaching out!",
-  "Let me look into that for you.",
-  "That's an interesting question.",
-  "I'm not sure about that, but I'll find out.",
-  "Can you clarify your last message?",
-  "Here's what I found on that topic.",
-  "Is there anything else you'd like to know?",
-];
+import { appendMessage, replaceMessage } from "../store/features/chatSlice";
+import { nanoid } from "@reduxjs/toolkit";
 
 const Home = () => {
   const [chats, setChats] = useState([]);
   const [socket, setSocket] = useState(null);
   const dispatch = useDispatch();
 
-  const [chatID, setChatID] = useState("1");
+  const [chatID, setChatID] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const activeConversation = chats.find((c) => c.id === chatID);
+  const messages = useSelector((state) => state.chat.messages[chatID]);
 
   const handleNewChat = async () => {
     const title = prompt("Enter the title of your chat");
@@ -42,77 +31,48 @@ const Home = () => {
   async function getUserDetails() {
     await dispatch(getUser());
     await dispatch(getChats());
-
   }
 
   useEffect(() => {
-    // const tempSocket = io("http://localhost:3000", {
-    //   withCredentials: true,
-    // });
+    const tempSocket = io("http://localhost:3000", {
+      withCredentials: true,
+    });
 
-    // tempSocket.on("ai-response", (message) => {
-    //   console.log(message);
-    // });
+    tempSocket.on("ai-response", ({ responseToUser }) => {
+      dispatch(
+        appendMessage({
+          chatID: responseToUser.chatID,
+          message: responseToUser,
+        })
+      );
+    });
+    tempSocket.on("user-message", ({ messageFromUser, tempID }) => {
+      dispatch(
+        replaceMessage({
+          chatID: messageFromUser.chatID,
+          tempID,
+          confirmedMessage: messageFromUser,
+        })
+      );
+    });
 
-    // setSocket(tempSocket);
+    setSocket(tempSocket);
 
     getUserDetails();
   }, []);
 
   const handleSendMessage = async (content) => {
-    // Use the latest chatID after potential new chat creation
-    const currentConversation = chats.find((c) => c.id === chatID);
+    const tempID = "temp-" + nanoid();
 
-    if (!currentConversation) {
-      return;
-    }
-
-    const newMessage = {
-      id: Date.now().toString(),
+    const tempMessage = {
+      _id: tempID,
+      chatID,
       content,
-      isUser: true,
-      timestamp: new Date(),
+      role: "user",
     };
+    dispatch(appendMessage({ chatID, message: tempMessage }));
 
-    setChats((prev) =>
-      prev.map((conv) =>
-        conv.id === chatID
-          ? {
-              ...conv,
-              messages: [...conv.messages, newMessage],
-              lastMessage: content,
-            }
-          : conv
-      )
-    );
-
-    setIsTyping(true);
-
-    setTimeout(() => {
-      const aiResponse = {
-        id: (Date.now() + 1).toString(),
-        content:
-          dummyAIResponses[Math.floor(Math.random() * dummyAIResponses.length)],
-        isUser: false,
-        timestamp: new Date(),
-      };
-
-      setChats((prev) =>
-        prev.map((conv) =>
-          conv.id === chatID
-            ? {
-                ...conv,
-                messages: [...conv.messages, aiResponse],
-                lastMessage:
-                  aiResponse.content.length > 50
-                    ? aiResponse.content.substring(0, 50) + "..."
-                    : aiResponse.content,
-              }
-            : conv
-        )
-      );
-      setIsTyping(false);
-    }, 1500);
+    socket.emit("ai-message", { chatID, content, tempID });
   };
 
   const handlechatselect = (id) => {
@@ -152,7 +112,7 @@ const Home = () => {
       />
 
       <ChatArea
-        messages={activeConversation?.messages || []}
+        messages={messages || []}
         onSendMessage={handleSendMessage}
         isTyping={isTyping}
         onToggleSidebar={toggleSidebar}

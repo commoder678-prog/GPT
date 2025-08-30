@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   chats: [],
+  messages: {},
 };
 
 const chatSlice = createSlice({
@@ -11,8 +12,34 @@ const chatSlice = createSlice({
     loadChats: (state, action) => {
       state.chats = action.payload;
     },
+    loadMessages: (state, action) => {
+      const { chatID, messages } = action.payload;
+      state.messages[chatID] = messages;
+    },
+    appendMessage: (state, action) => {
+      const { chatID, message } = action.payload;
+      if (!state.messages[chatID]) {
+        state.messages[chatID] = [];
+      }
+      state.messages[chatID].push(message);
+    },
+    replaceMessage: (state, action) => {
+      const { chatID, tempID, confirmedMessage } = action.payload;
+      if (!state.messages[chatID]) return;
+
+      const idx = state.messages[chatID].findIndex(
+        (msg) => msg._id === tempID || msg.content === confirmedMessage.content
+      );
+
+      if (idx !== -1) {
+        state.messages[chatID][idx] = confirmedMessage;
+      } else {
+        state.messages[chatID].push(confirmedMessage);
+      }
+    },
   },
 });
 
 export default chatSlice.reducer;
-export const { loadChats } = chatSlice.actions;
+export const { loadChats, loadMessages, appendMessage, replaceMessage } =
+  chatSlice.actions;

@@ -1,4 +1,5 @@
 const chatModel = require("../models/chat.model");
+const messageModel = require("../models/message.model");
 
 const createChat = async (req, res) => {
   const { title } = req.body;
@@ -42,4 +43,31 @@ const getChats = async (req, res) => {
   }
 };
 
-module.exports = { createChat, getChats };
+const getMessages = async (req, res) => {
+  const user = req.user;
+  const { chatID } = req.params;
+
+  try {
+    const messages = await messageModel.find({
+      userID: user._id,
+      chatID: chatID,
+    });
+
+    if (!messages)
+      return res.status(404).json({
+        message: "No Messages Found",
+      });
+
+    return res.status(200).json({
+      message: "Messages Fetched Successfully",
+      messages,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "An Error Has Occured",
+      error,
+    });
+  }
+};
+
+module.exports = { createChat, getChats, getMessages };
