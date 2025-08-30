@@ -7,9 +7,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { createChat, getChats } from "../store/actions/chatActions";
 import { appendMessage, replaceMessage } from "../store/features/chatSlice";
 import { nanoid } from "@reduxjs/toolkit";
+import NavBar from "../components/layout/NavBar";
 
 const Home = () => {
-  const [chats, setChats] = useState([]);
+  const chats = useSelector((state) => state.chat.chats);
   const [socket, setSocket] = useState(null);
   const dispatch = useDispatch();
 
@@ -24,7 +25,6 @@ const Home = () => {
 
     const response = await dispatch(createChat({ title }));
 
-    setChats((prev) => [response, ...prev]);
     setChatID(response.chatID);
   };
 
@@ -101,6 +101,10 @@ const Home = () => {
   }, []);
 
   return (
+<>
+      <NavBar/>
+    
+
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       <Sidebar
         isOpen={sidebarOpen}
@@ -122,9 +126,10 @@ const Home = () => {
         chatID={chatID}
         chats={chats}
         handleNewChat={handleNewChat}
-        setChats={setChats}
       />
     </div>
+    </>
+
   );
 };
 

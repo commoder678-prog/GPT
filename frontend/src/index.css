@@ -2,15 +2,18 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
-
 html,
-body {
+body,
+#root {
   height: 100%;
   width: 100%;
+  overflow: hidden;
 }
 
 body {
-  font-family: "Geist", sans-serif;
+  font-family: "Inter", sans-serif;
+  /* A clean, modern font */
+  /* background-image: linear-gradient(to right, #4facfe 0%, #00f2fe 100%); */
 }
 
 @theme inline {

@@ -22,7 +22,7 @@ const BotAvatar = () => (
 
 // A simple and clean component for the user's avatar
 const UserAvatar = ({ user }) => (
-  <div className="w-9 h-9 flex-shrink-0 bg-gray-700 rounded-full flex items-center justify-center shadow-sm">
+  <div className="w-9 h-9 flex-shrink-0 bg-gray-700 rounded-full flex items-center justify-center shadow-sm  ">
     <User size={18} className="text-gray-300" />
   </div>
 );
@@ -91,8 +91,7 @@ const ChatArea = ({
   return (
     <div
       className={cn(
-        "flex-1 flex flex-col bg-slate-900 text-gray-200 overflow-hidden",
-        className
+        "flex-1 flex flex-col bg-slate-900 text-gray-200 overflow-hidden justify-center items-center",
       )}
     >
       {/* Header for mobile */}
@@ -110,8 +109,8 @@ const ChatArea = ({
 
       {/* Messages container */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4 sm:p-6">
-          <div className="max-w-4xl mx-auto space-y-8">
+        <div className="p-4 sm:p-6 ">
+          <div className="max-w-3xl mx-auto space-y-6">
             {displayMessages.length === 0 && !isTyping ? (
               <EmptyState />
             ) : (
@@ -135,10 +134,11 @@ const ChatArea = ({
                     {/* Message Content */}
                     <div
                       className={cn(
-                        "flex-1 max-w-2xl rounded-2xl p-4 shadow-md",
+                        "max-w-[75%] px-4 py-3 text-sm",
+                        message.role === "user" ? "self-end" : "self-start",
                         message.role === "user"
-                          ? "bg-gradient-to-br from-[#0c3483] to-[#6b8cce] text-white rounded-br-none"
-                          : "bg-slate-800 text-slate-300 rounded-bl-none"
+                          ? "bg-gradient-to-r from-indigo-600 to-blue-500 text-white rounded-2xl rounded-br-none shadow-lg"
+                          : "text-slate-200 leading-relaxed whitespace-pre-wrap max-w-3xl"
                       )}
                     >
                       <div className="prose prose-invert max-w-none prose-p:my-0 prose-pre:my-2">
@@ -173,42 +173,32 @@ const ChatArea = ({
 
             {/* Typing Indicator */}
             {isTyping && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="flex gap-4 items-start"
-              >
+              <div className="flex items-start gap-3 self-start">
                 <BotAvatar />
-                <div className="flex gap-1.5 items-center mt-3 bg-slate-800 px-4 py-3 rounded-2xl rounded-bl-none">
-                  <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></div>
-                  <div
-                    className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"
-                    style={{ animationDelay: "0.2s" }}
-                  ></div>
-                  <div
-                    className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"
-                    style={{ animationDelay: "0.4s" }}
-                  ></div>
-                </div>
-              </motion.div>
+                <p className="text-slate-400 italic">Thinking...</p>
+              </div>
             )}
             <div ref={messagesEndRef} />
           </div>
         </div>
       </div>
 
-      {/* Input area - using the existing AiInput component */}
-      <div className="w-full bg-slate-900 border-t border-slate-700/50 pt-2">
-        <AiInput
-          value={inputMessage}
-          setValue={setInputMessage}
-          handleKeyPress={handleKeyPress}
-        />
-        <p className="text-xs text-center text-slate-500 pb-2 px-4">
-          AI can make mistakes. Consider checking important information.
-        </p>
-      </div>
+      {chatID ? (
+        <>
+          <div className="w-full bg-slate-900 border-t border-slate-700/50 pt-2 max-w-3xl mx-auto">
+            <AiInput
+              value={inputMessage}
+              setValue={setInputMessage}
+              handleKeyPress={handleKeyPress}
+            />
+            <p className="text-xs text-center text-slate-500 pb-2 px-4">
+              AI can make mistakes. Consider checking important information.
+            </p>
+          </div>
+        </>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };
