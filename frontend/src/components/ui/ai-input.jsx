@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { Globe, Paperclip, Plus, Send } from "lucide-react"
+import { Paperclip, Send, Plus } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
@@ -45,45 +45,27 @@ function useAutoResizeTextarea({
   return { textareaRef, adjustHeight }
 }
 
-const MIN_HEIGHT = 48
-const MAX_HEIGHT = 164
+const MIN_HEIGHT = 52
+const MAX_HEIGHT = 200
 
-const AnimatedPlaceholder = ({
-  showSearch
-}) => (
-  <AnimatePresence mode="wait">
-    <motion.p
-      key={showSearch ? "search" : "ask"}
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -5 }}
-      transition={{ duration: 0.1 }}
-      className="pointer-events-none w-[150px] text-sm absolute text-black/70 dark:text-white/70">
-      {showSearch ? "Search the web..." : "Ask Skiper Ai..."}
-    </motion.p>
-  </AnimatePresence>
-)
-
-export default function AiInput({ value, setValue, handleKeyPress }) {
-  // const [setValue] = useState("")
+export default function AiInput({ value, setValue, handleKeyPress, onSend }) {
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: MIN_HEIGHT,
     maxHeight: MAX_HEIGHT,
   });
-  const [showSearch, setShowSearch] = useState(true);
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
-  const handelClose = (e) => {
+  const handleClose = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Reset file input
+      fileInputRef.current.value = "";
     }
-    setImagePreview(null); // Use null instead of empty string
+    setImagePreview(null);
   };
 
-  const handelChange = (e) => {
+  const handleChange = (e) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
       setImagePreview(URL.createObjectURL(file));
@@ -91,7 +73,10 @@ export default function AiInput({ value, setValue, handleKeyPress }) {
   };
 
   const handleSubmit = (e) => {
-    setValue("");
+    e.preventDefault();
+    if (value.trim() && onSend) {
+      onSend();
+    }
     adjustHeight(true);
   };
 
@@ -102,146 +87,73 @@ export default function AiInput({ value, setValue, handleKeyPress }) {
       }
     };
   }, [imagePreview]);
-  return (
-    <div className="w-full py-4 px-4">
-      <div className="relative max-w-2xl border rounded-3xl border-slate-600/30 p-1.5 w-full mx-auto shadow-2xl bg-slate-800/50 backdrop-blur-xl">
-        <div className="relative rounded-2xl bg-slate-800/80 backdrop-blur-sm border border-slate-600/40 shadow-lg focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500/50 transition-all duration-300 text-white">
-          <div
-            className="overflow-y-auto"
-            style={{ maxHeight: `${MAX_HEIGHT}px` }}
-          >
-            <div className="relative">
-              <Textarea
-                id="ai-input-04"
-                value={value}
-                placeholder=""
-                className="w-full rounded-2xl rounded-b-none px-5 py-4 bg-transparent border-none text-slate-100 placeholder:text-slate-400 resize-none focus-visible:ring-0 leading-relaxed text-base"
-                ref={textareaRef}
-                onKeyDown={handleKeyPress}
-                onChange={(e) => {
-                  setValue(e.target.value);
-                  adjustHeight();
-                }}
-              />
-              {!value && (
-                <div className="absolute left-5 top-4">
-                  <AnimatedPlaceholder showSearch={showSearch} />
-                </div>
-              )}
-            </div>
-          </div>
 
-          <div className="h-14 bg-slate-800/30 rounded-b-2xl border-t border-slate-600/20">
-            <div className="absolute left-4 bottom-4 flex items-center gap-3">
+  return (
+    <div className="p-4">
+      <div className="relative max-w-4xl mx-auto">
+        <div className="relative bg-[#2f2f2f] rounded-3xl border border-[#4a4a4a] shadow-lg focus-within:border-[#5a5a5a] transition-all duration-200">
+          <div className="relative">
+            <Textarea
+              value={value}
+              placeholder="Message ChatGPT"
+              className="w-full bg-transparent border-none text-white placeholder:text-gray-400 resize-none focus-visible:ring-0 px-4 py-4 pr-12 rounded-3xl text-base leading-relaxed min-h-[52px]"
+              ref={textareaRef}
+              onKeyDown={handleKeyPress}
+              onChange={(e) => {
+                setValue(e.target.value);
+                adjustHeight();
+              }}
+              style={{ height: `${MIN_HEIGHT}px` }}
+            />
+            
+            {/* Attachment button */}
+            <div className="absolute left-4 bottom-3">
               <label
                 className={cn(
-                  "cursor-pointer relative rounded-xl p-2.5 transition-all duration-200 hover:scale-110",
-                  imagePreview
-                    ? "bg-orange-500/20 border border-orange-500/50 text-orange-400"
-                    : "bg-slate-700/50 text-slate-400 hover:text-slate-200 hover:bg-slate-600/50"
+                  "cursor-pointer rounded-lg p-2 transition-all duration-200 hover:bg-[#3a3a3a]",
+                  imagePreview ? "text-orange-400" : "text-gray-400 hover:text-white"
                 )}
               >
                 <input
                   type="file"
                   ref={fileInputRef}
-                  onChange={handelChange}
+                  onChange={handleChange}
                   className="hidden"
+                  accept="image/*"
                 />
-                <Paperclip
-                  className={cn(
-                    "w-4 h-4 transition-colors duration-200",
-                    imagePreview ? "text-orange-400" : "text-slate-400"
-                  )}
-                />
+                <Paperclip className="w-5 h-5" />
                 {imagePreview && (
-                  <div className="absolute w-[120px] h-[120px] top-16 -left-4 rounded-2xl overflow-hidden shadow-2xl border-2 border-orange-500/30">
-                    <Image
+                  <div className="absolute w-32 h-32 bottom-12 left-0 rounded-xl overflow-hidden shadow-xl border-2 border-orange-500/30">
+                    <img
                       className="object-cover w-full h-full"
-                      src={imagePreview || "/picture1.jpeg"}
-                      height={500}
-                      width={500}
-                      alt="additional image"
+                      src={imagePreview}
+                      alt="attachment preview"
                     />
                     <button
-                      onClick={handelClose}
-                      className="bg-slate-800 text-slate-200 absolute -top-2 -right-2 shadow-xl rounded-full rotate-45 w-6 h-6 flex items-center justify-center hover:bg-slate-700 transition-colors"
+                      onClick={handleClose}
+                      className="bg-[#1a1a1a] text-white absolute -top-2 -right-2 rounded-full rotate-45 w-6 h-6 flex items-center justify-center hover:bg-[#2a2a2a] transition-colors"
                     >
                       <Plus className="w-3 h-3" />
                     </button>
                   </div>
                 )}
               </label>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowSearch(!showSearch);
-                }}
-                className={cn(
-                  "rounded-xl transition-all duration-200 flex items-center gap-2 px-3 py-2 border h-9 hover:scale-105",
-                  showSearch
-                    ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-400 shadow-lg shadow-cyan-500/20"
-                    : "bg-slate-700/50 border-slate-600/30 text-slate-400 hover:text-slate-200 hover:bg-slate-600/50"
-                )}
-              >
-                <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
-                  <motion.div
-                    animate={{
-                      rotate: showSearch ? 180 : 0,
-                      scale: showSearch ? 1.1 : 1,
-                    }}
-                    whileHover={{
-                      rotate: showSearch ? 180 : 15,
-                      scale: 1.1,
-                      transition: {
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 10,
-                      },
-                    }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 260,
-                      damping: 25,
-                    }}
-                  >
-                    <Globe
-                      className={cn(
-                        "w-4 h-4",
-                        showSearch ? "text-cyan-400" : "text-inherit"
-                      )}
-                    />
-                  </motion.div>
-                </div>
-                <AnimatePresence>
-                  {showSearch && (
-                    <motion.span
-                      initial={{ width: 0, opacity: 0 }}
-                      animate={{
-                        width: "auto",
-                        opacity: 1,
-                      }}
-                      exit={{ width: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="text-sm overflow-hidden whitespace-nowrap text-cyan-400 flex-shrink-0 font-medium"
-                    >
-                      Search
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </button>
             </div>
-            <div className="absolute right-4 bottom-4">
+
+            {/* Send button */}
+            <div className="absolute right-3 bottom-3">
               <button
                 type="button"
                 onClick={handleSubmit}
+                disabled={!value.trim()}
                 className={cn(
-                  "rounded-xl p-3 transition-all duration-200 hover:scale-110 shadow-lg",
-                  value
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-indigo-500/30 hover:shadow-indigo-500/50"
-                    : "bg-slate-700/50 text-slate-400 hover:text-slate-200 hover:bg-slate-600/50"
+                  "rounded-lg p-2 transition-all duration-200",
+                  value.trim()
+                    ? "bg-white text-black hover:bg-gray-200"
+                    : "bg-[#3a3a3a] text-gray-500 cursor-not-allowed"
                 )}
               >
-                <Send className={cn("w-4 h-4 cursor-pointer transition-colors", value ? "text-white" : "text-slate-400")} />
+                <Send className="w-5 h-5" />
               </button>
             </div>
           </div>
