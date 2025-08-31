@@ -103,9 +103,9 @@ export default function AiInput({ value, setValue, handleKeyPress }) {
     };
   }, [imagePreview]);
   return (
-    <div className="w-full py-4">
-      <div className="relative max-w-xl border rounded-[22px] border-black/5 p-1 w-full mx-auto">
-        <div className="relative rounded-2xl bg-gray-800 border border-gray-700  shadow-sm focus-within:ring-2 focus-within:ring-blue-500 transition-all duration-200 text-white">
+    <div className="w-full py-4 px-4">
+      <div className="relative max-w-2xl border rounded-3xl border-slate-600/30 p-1.5 w-full mx-auto shadow-2xl bg-slate-800/50 backdrop-blur-xl">
+        <div className="relative rounded-2xl bg-slate-800/80 backdrop-blur-sm border border-slate-600/40 shadow-lg focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500/50 transition-all duration-300 text-white">
           <div
             className="overflow-y-auto"
             style={{ maxHeight: `${MAX_HEIGHT}px` }}
@@ -115,7 +115,7 @@ export default function AiInput({ value, setValue, handleKeyPress }) {
                 id="ai-input-04"
                 value={value}
                 placeholder=""
-                className="w-full rounded-2xl rounded-b-none px-4 py-3 bg-black/5 dark:bg-white/5 border-none dark:text-white resize-none focus-visible:ring-0 leading-[1.2]"
+                className="w-full rounded-2xl rounded-b-none px-5 py-4 bg-transparent border-none text-slate-100 placeholder:text-slate-400 resize-none focus-visible:ring-0 leading-relaxed text-base"
                 ref={textareaRef}
                 onKeyDown={handleKeyPress}
                 onChange={(e) => {
@@ -124,21 +124,21 @@ export default function AiInput({ value, setValue, handleKeyPress }) {
                 }}
               />
               {!value && (
-                <div className="absolute left-4 top-3">
+                <div className="absolute left-5 top-4">
                   <AnimatedPlaceholder showSearch={showSearch} />
                 </div>
               )}
             </div>
           </div>
 
-          <div className="h-12 bg-black/5 dark:bg-white/5 rounded-b-xl">
-            <div className="absolute left-3 bottom-3 flex items-center gap-2">
+          <div className="h-14 bg-slate-800/30 rounded-b-2xl border-t border-slate-600/20">
+            <div className="absolute left-4 bottom-4 flex items-center gap-3">
               <label
                 className={cn(
-                  "cursor-pointer relative rounded-full p-2 bg-black/5 dark:bg-white/5",
+                  "cursor-pointer relative rounded-xl p-2.5 transition-all duration-200 hover:scale-110",
                   imagePreview
-                    ? "bg-[#ff3f17]/15 border border-[#ff3f17] text-[#ff3f17]"
-                    : "bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white"
+                    ? "bg-orange-500/20 border border-orange-500/50 text-orange-400"
+                    : "bg-slate-700/50 text-slate-400 hover:text-slate-200 hover:bg-slate-600/50"
                 )}
               >
                 <input
@@ -149,14 +149,14 @@ export default function AiInput({ value, setValue, handleKeyPress }) {
                 />
                 <Paperclip
                   className={cn(
-                    "w-4 h-4 text-white dark:text-white/40 hover:text-white dark:hover:text-white transition-colors",
-                    imagePreview && "text-[#ff3f17]"
+                    "w-4 h-4 transition-colors duration-200",
+                    imagePreview ? "text-orange-400" : "text-slate-400"
                   )}
                 />
                 {imagePreview && (
-                  <div className="absolute w-[100px] h-[100px] top-14 -left-4">
+                  <div className="absolute w-[120px] h-[120px] top-16 -left-4 rounded-2xl overflow-hidden shadow-2xl border-2 border-orange-500/30">
                     <Image
-                      className="object-cover rounded-2xl"
+                      className="object-cover w-full h-full"
                       src={imagePreview || "/picture1.jpeg"}
                       height={500}
                       width={500}
@@ -164,9 +164,9 @@ export default function AiInput({ value, setValue, handleKeyPress }) {
                     />
                     <button
                       onClick={handelClose}
-                      className="bg-[#e8e8e8] text-[#464646] absolute -top-1 -left-1 shadow-3xl rounded-full rotate-45"
+                      className="bg-slate-800 text-slate-200 absolute -top-2 -right-2 shadow-xl rounded-full rotate-45 w-6 h-6 flex items-center justify-center hover:bg-slate-700 transition-colors"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-3 h-3" />
                     </button>
                   </div>
                 )}
@@ -177,10 +177,10 @@ export default function AiInput({ value, setValue, handleKeyPress }) {
                   setShowSearch(!showSearch);
                 }}
                 className={cn(
-                  "rounded-full transition-all flex items-center gap-2 px-1.5 py-1 border h-8",
+                  "rounded-xl transition-all duration-200 flex items-center gap-2 px-3 py-2 border h-9 hover:scale-105",
                   showSearch
-                    ? "bg-[#ff3f17]/15 border-[#ff3f17] text-[#ff3f17]"
-                    : "bg-black/5 dark:bg-white/5 border-transparent text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white"
+                    ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-400 shadow-lg shadow-cyan-500/20"
+                    : "bg-slate-700/50 border-slate-600/30 text-slate-400 hover:text-slate-200 hover:bg-slate-600/50"
                 )}
               >
                 <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
@@ -207,7 +207,7 @@ export default function AiInput({ value, setValue, handleKeyPress }) {
                     <Globe
                       className={cn(
                         "w-4 h-4",
-                        showSearch ? "text-[#ff3f17]" : "text-inherit"
+                        showSearch ? "text-cyan-400" : "text-inherit"
                       )}
                     />
                   </motion.div>
@@ -222,7 +222,7 @@ export default function AiInput({ value, setValue, handleKeyPress }) {
                       }}
                       exit={{ width: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="text-sm overflow-hidden whitespace-nowrap text-[#ff3f17] flex-shrink-0"
+                      className="text-sm overflow-hidden whitespace-nowrap text-cyan-400 flex-shrink-0 font-medium"
                     >
                       Search
                     </motion.span>
@@ -230,18 +230,18 @@ export default function AiInput({ value, setValue, handleKeyPress }) {
                 </AnimatePresence>
               </button>
             </div>
-            <div className="absolute right-3 bottom-3">
+            <div className="absolute right-4 bottom-4">
               <button
                 type="button"
                 onClick={handleSubmit}
                 className={cn(
-                  "rounded-full p-2 transition-colors !bg-gray-600 bg-opacity-90",
+                  "rounded-xl p-3 transition-all duration-200 hover:scale-110 shadow-lg",
                   value
-                    ? "bg-[#ff3f17]/15 text-[#ff3f17]"
-                    : "bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white"
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-indigo-500/30 hover:shadow-indigo-500/50"
+                    : "bg-slate-700/50 text-slate-400 hover:text-slate-200 hover:bg-slate-600/50"
                 )}
               >
-                <Send className="w-4 h-4 text-white cursor-pointer" />
+                <Send className={cn("w-4 h-4 cursor-pointer transition-colors", value ? "text-white" : "text-slate-400")} />
               </button>
             </div>
           </div>

@@ -105,7 +105,7 @@ const Home = () => {
       <NavBar/>
     
 
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={toggleSidebar}
